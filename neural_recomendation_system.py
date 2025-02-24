@@ -4,7 +4,8 @@ import torch.optim as optim
 import numpy as np
 from torch.utils.data import dataset, dataloader
 
-class NCFDataset(dataset):
+
+class NCFDataset(ataset):
     def __init__(self,user_ids,item_ids,ratings):
         self.user_ids = torch.LongTensor(user_ids)
         self.item_ids = torch.LongTensor(item_ids)
@@ -14,7 +15,7 @@ class NCFDataset(dataset):
         return len(self.user_ids)
     
     def __getitem__(self,idx):
-        return(
+        return( 
             self.user_ids[idx],
             self.item_ids[idx],
             self.ratings[idx]
@@ -100,7 +101,7 @@ def prepare_data():
     num_items = 500
     
     user_ids = np.random.randint(0,num_users,5000)
-    item_ids = np.random.ranint(0,num_items,5000)
+    item_ids = np.random.rancint(0,num_items,5000)
     ratings = np.random.random(5000)
     
     dataset = NCFDataset(user_ids,item_ids,ratings)
