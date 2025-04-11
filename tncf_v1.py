@@ -146,6 +146,10 @@ def recommend_based_on_item(model, liked_item_name, liked_item_domain, dataset_o
 
     return sorted_recommendations
 
+# def transfer_learning():
+#     pass
+
+
 if __name__ == "__main__":
     my_data = pd.read_csv("multi-domain synthetic dataset.csv")
     full_dataset = Dataset(my_data)
@@ -178,10 +182,10 @@ if __name__ == "__main__":
         print(f"Epoch {epoch+1}/{num_epochs}, Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}")
 
     # Example recommendation based on a liked movie
-    liked_movie = "The Confusion"
-    liked_domain = "books"
-    top_recommendations = recommend_based_on_item(model, liked_movie, liked_domain, full_dataset, top_n=5, device=device)
+    liked_movie_book = "The Kid"
+    liked_domain = "movies"
+    top_recommendations = recommend_based_on_item(model, liked_movie_book, liked_domain, full_dataset, top_n=5, device=device)
 
-    print(f"\nTop recommendations based on liking '{liked_movie}' ({liked_domain}):")
+    print(f"\nTop recommendations based on liking '{liked_movie_book}' ({liked_domain}):")
     for (recommended_name, recommended_domain), similarity in top_recommendations:
         print(f"- {recommended_name} ({recommended_domain}) - Similarity: {similarity:.4f}")
