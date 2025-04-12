@@ -146,8 +146,44 @@ def recommend_based_on_item(model, liked_item_name, liked_item_domain, dataset_o
 
     return sorted_recommendations
 
-# def transfer_learning():
-#     pass
+def transfer_learning(source_model,target_data,target_domain_to_index,source_unique_names,embedding_dim,device,freeze_embeddings=True,epochs=20,lr=0.001,batch_size=64):
+    target_data = prepare_data(target_data.copy(),target_domain_to_index)
+    target_dataset = Dataset(target_data)
+    dataset_loader = DataLoader(target_dataset,batch_size=batch_size,shuffle=True)
+    
+    num_target_names = len(target_dataset.unique_names)
+    num_target_domains = len(target_domain_to_index)
+    target_model = NCFModel(num_target_names,embedding_dim,num_target_domains).to(device)
+    
+    target_name_to_index_map = target_dataset.name_to_index
+    source_name_to_index_map_source = {name:idx for idx , name in enumerate(source_unique_names)}
+    
+    
+    # for name, target_idx in target_name_to_index_map.items():
+    #     if name in source_name_to_index_map_source and target_idx < target_model.name_embedding.weight.size(0):
+    #         target_model.name_embedding.weight.data[target_idx] = source_model.name_embedding.weight.data[source_name_to_index_map_source[name]]
+            
+    
+    
+    for name, target_idx in target_name_to_index_map.items():
+        if name in source_name_to_index_map_source and target_idx < target_model.name_embedding.weight.shape[0] and source_name_to_index_map_source[name] < source_model.name_embedding.weight.shape[0]:
+            try:
+                target_model.name_embedding.weight.data[target_idx] = source_model.name_embedding.weight.data[source_name_to_index_map_source[name]].clone().detach()
+            except IndexError:
+                pass
+    if freeze_embeddings:
+        for param in target_model.name_embedding.parameters():
+            param.requires_grad = False
+        
+    optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, target_model.parameters()), lr=lr)
+    criterion = nn.MSELoss()
+    
+    for epoch in range(epochs):
+        train_loss = train(target_model,target_loader,optimizer,criterion,device)
+        print("Epoch [{}/{}], Train Loss: {:.4f}".format(epoch+1, epochs, train_loss))
+    return target_model
+        
+
 
 
 if __name__ == "__main__":
